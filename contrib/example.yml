@@ -1,0 +1,20 @@
+# Destination git repository. Should be a bare repository.
+repo: /opt/src/maas/git
+
+# Temporary work directory. Contents may be deleted.
+workdir: /opt/src/maas/bzr2git
+
+# Author/committer names to use if not found
+null_author_name: Unknown author
+null_author_email: unknown-author-email@bzr2git.example.com
+null_committer_name: Unknown committer
+null_committer_email: unknown-committer-email@bzr2git.example.com
+
+branches:
+# Source bzr branches (list of dictionaries). Valid keys:
+# - source: path/to/bzr/repository
+#   branch: git-branch-name
+ - source: /opt/src/maas/trunk
+   branch: master
+# - source: /opt/src/maas/2.1
+#   branch: '2.1'
