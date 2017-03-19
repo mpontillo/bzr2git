@@ -1,0 +1,32 @@
+Total 9 (delta 8), reused 0 (delta 0)
+To /opt/src/maas/git
+   1ccd60a..ed550b7  HEAD -> master
+All changes applied successfully.
+Updated to revision 1326 of branch /opt/src/maas/bzr2git/bzr
+'[r=jtv,jameinel][bug=][author=jtv] Lint.'
+'Jeroen Vermeulen <jeroen.vermeulen@canonical.com>'
+'Tarmac <unknown-committer-email@bzr2git.example.com>'
+'201211061709'
+'Tue 2012-11-06 17:09:31 +0000'
+Error executing command: ['git', 'commit', '-m', '[r=jtv,jameinel][bug=][author=jtv] Lint.', '--author', 'Jeroen Vermeulen <jeroen.vermeulen@canonical.com>', '--date', 'Tue 2012-11-06 17:09:31 +0000']
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/runpy.py", line 184, in _run_module_as_main
+    "__main__", mod_spec)
+  File "/usr/lib/python3.5/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/opt/src/bzr2git/bzr2git/__main__.py", line 2, in <module>
+    main.main()
+  File "/opt/src/bzr2git/bzr2git/main.py", line 228, in main
+    if args.verbose is True:
+  File "/opt/src/bzr2git/bzr2git/main.py", line 197, in mirror_all
+    git_branch = spec['branch']
+  File "/opt/src/bzr2git/bzr2git/main.py", line 185, in mirror
+    'GIT_COMMITTER_EMAIL': committer_email,
+  File "/opt/src/bzr2git/bzr2git/main.py", line 15, in run
+    return check_output(*args, **kwargs)
+  File "/usr/lib/python3.5/subprocess.py", line 626, in check_output
+    **kwargs).stdout
+  File "/usr/lib/python3.5/subprocess.py", line 708, in run
+    output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'commit', '-m', '[r=jtv,jameinel][bug=][author=jtv] Lint.', '--author', 'Jeroen Vermeulen <jeroen.vermeulen@canonical.com>', '--date', 'Tue 2012-11-06 17:09:31 +0000']' returned non-zero exit status 1
+

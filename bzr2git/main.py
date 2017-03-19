@@ -143,6 +143,8 @@ def mirror(config, bzr_source, git_branch):
     git_workdir_git = os.path.join(git_workdir, '.git')
     os.chdir(bzr_workdir)
     # Get the number of revisions we'll be processing.
+    # XXX: Should get the number of revisions already in git, using something
+    # like `git rev-list --count HEAD`, and then start there.
     revisions = int(run(['bzr', 'revno']).strip())
     for i in range(revisions):
         os.chdir(bzr_workdir)
