@@ -184,7 +184,7 @@ def mirror(config, bzr_source, git_branch):
             'GIT_COMMITTER_NAME': committer_name,
             'GIT_COMMITTER_EMAIL': committer_email,
         }
-        run(['git', 'commit', '-m', log, '--author', author, '--date', commit_date], env=env)
+        run(['git', 'commit', '--allow-empty', '--allow-empty-message', '-m', log, '--author', author, '--date', commit_date], env=env)
         run(['git', 'push', 'origin', 'HEAD:%s' % git_branch])
 
 
