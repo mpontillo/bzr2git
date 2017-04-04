@@ -68,6 +68,11 @@ def setup(config):
     run(['git', 'clone', git_repo, git_workdir])
 
 
+def git_revno(git_branch):
+    result = run(['git', 'rev-list', '--count', git_branch])
+    return int(result.decode('utf-8').strip())
+
+
 def bzr_branch(bzr_source, bzr_workdir):
     run(['bzr', 'branch', bzr_source, bzr_workdir])
 
@@ -141,12 +146,12 @@ def mirror(config, bzr_source, git_branch):
     tempdir = config['tempdir']
     bzr_workdir_bzr = os.path.join(bzr_workdir, '.bzr')
     git_workdir_git = os.path.join(git_workdir, '.git')
+    os.chdir(git_workdir)
+    git_revisions = git_revno(git_branch)
+    print("Revisions already in git: %d" % git_revisions)
     os.chdir(bzr_workdir)
-    # Get the number of revisions we'll be processing.
-    # XXX: Should get the number of revisions already in git, using something
-    # like `git rev-list --count HEAD`, and then start there.
     revisions = int(run(['bzr', 'revno']).strip())
-    for i in range(revisions):
+    for i in range(git_revisions, revisions):
         os.chdir(bzr_workdir)
         revno = i + 1
         run(['bzr', 'update', '-r', str(revno)])
