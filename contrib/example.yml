@@ -14,6 +14,7 @@ branches:
 # Source bzr branches (list of dictionaries). Valid keys:
 # - source: path/to/bzr/repository
 #   branch: git-branch-name
+# The first branch in this list is always considered to be "trunk".
  - source: /opt/src/maas/trunk
    branch: master
 # - source: /opt/src/maas/2.1

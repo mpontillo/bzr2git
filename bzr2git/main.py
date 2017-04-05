@@ -77,6 +77,20 @@ def bzr_branch(bzr_source, bzr_workdir):
     run(['bzr', 'branch', bzr_source, bzr_workdir])
 
 
+def bzr_common_ancestor(branch_path):
+    result = run(
+        "bzr log -rancestor:%s --line | cut -d: -f1" % branch_path,
+        shell=True)
+    return int(result.decode('utf-8').strip())
+
+
+def bzr_rev_to_git_rev(revno):
+    result = run(
+        "git log --oneline --no-merges | tail -%d | head -1 | awk '{ print $1 }'" % revno,
+        shell=True)
+    return result.decode('utf-8').strip()
+
+
 def bzr_log(revno):
     result = run(
         "bzr log -r %d -n1 | grep '^message:$' -A 9999999 | tail -n +2 | sed 's/^  //g'" % revno,
@@ -136,7 +150,8 @@ def reformat_author(author, null_name, null_email):
     return "%s <%s>" % (author, email)
 
 
-def mirror(config, bzr_source, git_branch):
+def mirror(config, bzr_source, git_branch, trunk_branch):
+    print("Mirroring: %s --> %s" % (bzr_source, git_branch))
     null_committer_name = config['null_committer_name']
     null_committer_email = config['null_committer_email']
     null_author_name = config['null_author_name']
@@ -146,7 +161,25 @@ def mirror(config, bzr_source, git_branch):
     tempdir = config['tempdir']
     bzr_workdir_bzr = os.path.join(bzr_workdir, '.bzr')
     git_workdir_git = os.path.join(git_workdir, '.git')
+    if trunk_branch is not None:
+        os.chdir(bzr_workdir)
+        start_revno = bzr_common_ancestor(trunk_branch[0])
+        print("Common ancestor: %d" % start_revno)
     os.chdir(git_workdir)
+    # Delete an branches that existed in the work directory.
+    # We'll recreate whatever branch we need.
+    rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
+    try:
+        run(["git", "rev-parse", "--verify", "origin/%s" % git_branch])
+    except CalledProcessError:
+        if trunk_branch is not None:
+            run(["git", "checkout", "-fb", "__trunk__", "origin/" + trunk_branch[1]])
+            start_git_rev = bzr_rev_to_git_rev(start_revno)
+            print("Found starting git revision for %s: %s" % (git_branch, start_git_rev))
+            run(["git", "checkout", "-fb", git_branch, start_git_rev])
+            run(["git", "push", "origin", "%s:%s" % (git_branch, git_branch)])
+            rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
+    run(["git", "checkout", "-fb", git_branch, "origin/" + git_branch])
     git_revisions = git_revno(git_branch)
     print("Revisions already in git: %d" % git_revisions)
     os.chdir(bzr_workdir)
@@ -196,12 +229,16 @@ def mirror(config, bzr_source, git_branch):
 def mirror_all(config):
     workdir = config['workdir']
     bzr_workdir = config['bzr_workdir']
+    # The first bzr branch is considered to be "trunk".
+    trunk_branch = None
     for spec in config['branches']:
         rmtree(bzr_workdir)
         bzr_source = spec['source']
         git_branch = spec['branch']
         bzr_branch(bzr_source, bzr_workdir)
-        mirror(config, bzr_source, git_branch)
+        mirror(config, bzr_source, git_branch, trunk_branch)
+        if trunk_branch is None:
+            trunk_branch = (bzr_source, git_branch)
 
 def main():
     parser = argparse.ArgumentParser(
