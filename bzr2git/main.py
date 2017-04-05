@@ -163,7 +163,12 @@ def mirror(config, bzr_source, git_branch, trunk_branch):
     git_workdir_git = os.path.join(git_workdir, '.git')
     if trunk_branch is not None:
         os.chdir(bzr_workdir)
-        start_revno = bzr_common_ancestor(trunk_branch[0])
+        try:
+            start_revno = bzr_common_ancestor(trunk_branch[0])
+        except ValueError:
+            print("Unable to find common ancestor.")
+            # Didn't branch from the branch we thought. Just skip it.
+            return
         print("Common ancestor: %d" % start_revno)
     os.chdir(git_workdir)
     # Delete an branches that existed in the work directory.
