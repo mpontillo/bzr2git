@@ -86,7 +86,7 @@ def bzr_common_ancestor(branch_path):
 
 def bzr_rev_to_git_rev(revno):
     result = run(
-        "git log --oneline --no-merges | tail -%d | head -1 | awk '{ print $1 }'" % revno,
+        "git log --oneline | tail -%d | head -1 | awk '{ print $1 }'" % revno,
         shell=True)
     return result.decode('utf-8').strip()
 
@@ -163,25 +163,39 @@ def mirror(config, bzr_source, git_branch, trunk_branch):
     git_workdir_git = os.path.join(git_workdir, '.git')
     if trunk_branch is not None:
         os.chdir(bzr_workdir)
-        start_revno = bzr_common_ancestor(trunk_branch[0])
+        try:
+            start_revno = bzr_common_ancestor(trunk_branch[0])
+        except ValueError:
+            # No common ancestor. Graft onto the root.
+            start_revno = 0
         print("Common ancestor: %d" % start_revno)
     os.chdir(git_workdir)
     # Delete an branches that existed in the work directory.
     # We'll recreate whatever branch we need.
     rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
+    branch_exists = None
     try:
         run(["git", "rev-parse", "--verify", "origin/%s" % git_branch])
+        branch_exists = True
     except CalledProcessError:
+        branch_exists = False
         if trunk_branch is not None:
             run(["git", "checkout", "-fb", "__trunk__", "origin/" + trunk_branch[1]])
             start_git_rev = bzr_rev_to_git_rev(start_revno)
-            print("Found starting git revision for %s: %s" % (git_branch, start_git_rev))
-            run(["git", "checkout", "-fb", git_branch, start_git_rev])
-            run(["git", "push", "origin", "%s:%s" % (git_branch, git_branch)])
-            rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
-    run(["git", "checkout", "-fb", git_branch, "origin/" + git_branch])
-    git_revisions = git_revno(git_branch)
-    print("Revisions already in git: %d" % git_revisions)
+            if start_git_rev == '':
+                print("Detached branch: %s" % (git_branch))
+                run(["rm", "-f", ".git/HEAD"])
+            else:
+                print("Found starting git revision for %s: %s" % (git_branch, start_git_rev))
+                run(["git", "checkout", "-fb", git_branch, start_git_rev])
+                run(["git", "push", "origin", "%s:%s" % (git_branch, git_branch)])
+                rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
+    if branch_exists is True:
+        run(["git", "checkout", "-fb", git_branch, "origin/" + git_branch])
+        git_revisions = git_revno(git_branch)
+        print("Revisions already in git: %d" % git_revisions)
+    else:
+        git_revisions = 0
     os.chdir(bzr_workdir)
     revisions = int(run(['bzr', 'revno']).strip())
     for i in range(git_revisions, revisions):
