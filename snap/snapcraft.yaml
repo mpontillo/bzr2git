@@ -1,0 +1,34 @@
+name: bzr2git
+version: 1.0
+summary: Tool to mirror bzr repositories to a git equivalent.
+description: |
+  Python script to convert a set of bzr branches into a git repository.
+  
+  While there are other tools available to convert bzr repositories to git
+  repositories, no tool addressed all of the following requirements:
+  
+  * Support for iterative mirroring.
+  * Consistent SHA-1 hashes if the tool runs multiple times.
+  * Streamlined history
+    (include only "main" branches, such as trunk plus release branches).
+
+grade: stable
+confinement: strict
+
+apps:
+  bzr2git:
+    command: bzr2git
+    plugs:
+     - home
+
+parts:
+  bzr2git:
+    plugin: python
+    # source: https://github.com/mpontillo/bzr2git
+    # source-type: git
+    # source-tag: master
+    python-version: python3
+    stage-packages:
+     - git
+     - bzr
+     - python3-yaml

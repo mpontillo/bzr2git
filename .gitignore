@@ -1,2 +1,9 @@
 *.swp
 *.pyc
+build/
+parts/
+prime/
+*.snap
+*.snap-build
+*.snap-build.*
+stage/
