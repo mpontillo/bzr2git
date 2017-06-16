@@ -1,5 +1,5 @@
 name: bzr2git
-version: 1.0
+version: 1.1
 summary: Tool to mirror bzr repositories to a git equivalent.
 description: |
   Python script to convert a set of bzr branches into a git repository.
