@@ -11,6 +11,7 @@ import sys
 import argparse
 
 def run(*args, **kwargs):
+    print("Executing: %r" % args)
     try:
         return check_output(*args, **kwargs)
     except CalledProcessError:
@@ -190,6 +191,7 @@ def mirror(config, bzr_source, git_branch, trunk_branch):
                 run(["git", "checkout", "-fb", git_branch, start_git_rev])
                 run(["git", "push", "origin", "%s:%s" % (git_branch, git_branch)])
                 rmtree(os.path.join(git_workdir, ".git", "refs", "heads"))
+                branch_exists = True
     if branch_exists is True:
         run(["git", "checkout", "-fb", git_branch, "origin/" + git_branch])
         git_revisions = git_revno(git_branch)
