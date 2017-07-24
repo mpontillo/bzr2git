@@ -1,7 +1,9 @@
 bzr2git
 -------
-Python script to convert a set of `bzr` branches into a `git` repository.
 
+[![Snap Status](https://build.snapcraft.io/badge/mpontillo/bzr2git.svg)](https://build.snapcraft.io/user/mpontillo/bzr2git)
+
+Python script to convert a set of `bzr` branches into a `git` repository.
 
 Development Goals
 =================
